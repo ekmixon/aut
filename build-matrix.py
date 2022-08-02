@@ -90,9 +90,8 @@ def fill_matrix(job, data, entries):
         for pre_dict in pres:
             for pre, premeta in pre_dict.items():
                 for product in ('ansible', 'ansible-base', 'ansible-core'):
-                    if premeta:
-                        if product in premeta.get('exclude', []):
-                            continue
+                    if premeta and product in premeta.get('exclude', []):
+                        continue
 
                     # Handle the case where we define a product, but no versions
                     # for it.
@@ -119,14 +118,11 @@ def fill_matrix(job, data, entries):
                             if 'beta' in premeta.get('exclude', []) and 'b' in version:
                                 continue
 
-                            build_args = premeta.get('build-args')
-                            if build_args:
+                            if build_args := premeta.get('build-args'):
                                 for k, v in build_args.items():
-                                    matrix_entry['build_args'] += \
-                                        ' --build-arg %s=%s' % (k, v)
+                                    matrix_entry['build_args'] += f' --build-arg {k}={v}'
 
-                            env = premeta.get('env', {})
-                            if env:
+                            if env := premeta.get('env', {}):
                                 for k, v in env.items():
                                     matrix_entry[k] = v
                                     pre_values.append(v)
@@ -156,7 +152,7 @@ def matrixbar(num_entries):
         out += '\033[93m'
     else:
         out += '\033[91m'
-    out += str(num_entries) + ' / ' + str(MAX_MATRIX_ENTRIES)
+    out += f'{str(num_entries)} / {str(MAX_MATRIX_ENTRIES)}'
     out += '\033[m'
     return out
 
